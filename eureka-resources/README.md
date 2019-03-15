@@ -1,0 +1,1 @@
+eureka-resources 模块，使用 JSP 实现 Eureka-Server 的运维后台界面
