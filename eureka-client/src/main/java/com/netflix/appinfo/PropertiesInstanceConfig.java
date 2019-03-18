@@ -15,21 +15,21 @@
  */
 package com.netflix.appinfo;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.discovery.CommonConstants;
 import com.netflix.discovery.internal.util.Archaius1Utils;
 import org.apache.commons.configuration.Configuration;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static com.netflix.appinfo.PropertyBasedInstanceConfigConstants.*;
 
 /**
  * A properties based {@link InstanceInfo} configuration.
- *
+ * <p>
  * <p>
  * The information required for registration with eureka server is provided in a
  * configuration file.The configuration file is searched for in the classpath
@@ -38,7 +38,7 @@ import static com.netflix.appinfo.PropertyBasedInstanceConfigConstants.*;
  * <em>eureka-client.properties</em> is assumed as the default.The properties
  * that are looked up uses the <em>namespace</em> passed on to this class.
  * </p>
- *
+ * <p>
  * <p>
  * If the <em>eureka.environment</em> property is specified, additionally
  * <em>eureka-client-<eureka.environment>.properties</em> is loaded in addition
@@ -46,12 +46,21 @@ import static com.netflix.appinfo.PropertyBasedInstanceConfigConstants.*;
  * </p>
  *
  * @author Karthik Ranganathan
- *
  */
 public abstract class PropertiesInstanceConfig extends AbstractInstanceConfig implements EurekaInstanceConfig {
 
+    /**
+     * 命名空间
+     */
     protected final String namespace;
+    /**
+     * 配置文件对象
+     */
     protected final DynamicPropertyFactory configInstance;
+    /**
+     * 应用分组
+     * 从 环境变量 获取
+     */
     private String appGrpNameFromEnv;
 
     public PropertiesInstanceConfig() {
@@ -70,13 +79,16 @@ public abstract class PropertiesInstanceConfig extends AbstractInstanceConfig im
     public PropertiesInstanceConfig(String namespace, DataCenterInfo info) {
         super(info);
 
+        //设置 namespace，为 "." 结尾
         this.namespace = namespace.endsWith(".")
                 ? namespace
                 : namespace + ".";
 
+        //从 环境变量 获取 应用分组
         appGrpNameFromEnv = ConfigurationManager.getConfigInstance()
                 .getString(FALLBACK_APP_GROUP_KEY, Values.UNKNOWN_APPLICATION);
 
+        //初始化 配置文件对象
         this.configInstance = Archaius1Utils.initConfig(CommonConstants.CONFIG_FILE_NAME);
     }
 
@@ -201,7 +213,7 @@ public abstract class PropertiesInstanceConfig extends AbstractInstanceConfig im
     /**
      * Gets the metadata map associated with the instance. The properties that
      * will be looked up for this will be <code>namespace + ".metadata"</code>.
-     *
+     * <p>
      * <p>
      * For instance, if the given namespace is <code>eureka.appinfo</code>, the
      * metadata keys are searched under the namespace

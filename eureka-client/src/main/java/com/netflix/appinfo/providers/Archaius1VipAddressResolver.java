@@ -21,6 +21,7 @@ public class Archaius1VipAddressResolver implements VipAddressResolver {
 
         String result = vipAddressMacro;
 
+        // 替换表达式
         Matcher matcher = VIP_ATTRIBUTES_PATTERN.matcher(result);
         while (matcher.find()) {
             String key = matcher.group(1);

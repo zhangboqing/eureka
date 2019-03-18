@@ -16,16 +16,16 @@
 
 package com.netflix.appinfo;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.StatusChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The class that initializes information required for registration with
@@ -55,12 +55,27 @@ public class ApplicationInfoManager {
         }
     };
 
+    /**
+     * 单例
+     */
     private static ApplicationInfoManager instance = new ApplicationInfoManager(null, null, null);
 
+    /**
+     * 状态变更监听器
+     */
     protected final Map<String, StatusChangeListener> listeners;
+    /**
+     * 应用实例状态匹配
+     */
     private final InstanceStatusMapper instanceStatusMapper;
 
+    /**
+     * 应用实例信息
+     */
     private InstanceInfo instanceInfo;
+    /**
+     * 应用实例配置
+     */
     private EurekaInstanceConfig config;
 
     public static class OptionalArgs {

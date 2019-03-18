@@ -17,3 +17,19 @@ com.netflix.discovery.shared.transport 包：Eureka-Client 对 Eureka-Server RES
 com.netflix.discovery.shared.dns 包 ：DNS 解析器。
 com.netflix.discovery.shared.resolver 包：Eureka Endpoint 解析器。在 《Eureka 源码解析 —— EndPoint 与 解析器》 有详细解析。
 com.netflix.discovery.util 包 ：工具类。
+
+================================================================================================
+Eureka-Client 自身初始化的过程，不包含 Eureka-Client 向 Eureka-Server 的注册过程
+创建 EurekaInstanceConfig对象
+使用 EurekaInstanceConfig对象 创建 InstanceInfo对象
+使用 EurekaInstanceConfig对象 + InstanceInfo对象 创建 ApplicationInfoManager对象
+创建 EurekaClientConfig对象
+使用 ApplicationInfoManager对象 + EurekaClientConfig对象 创建 EurekaClient对象
+
+
+####1.EurekaInstanceConfig
+com.netflix.appinfo.EurekaInstanceConfig，Eureka 应用实例配置接口。在下文你会看到 EurekaClientConfig 接口，两者的区别如下：
+
+EurekaInstanceConfig，重在应用实例，例如，应用名、应用的端口等等。此处应用指的是，Application Consumer 和 Application Provider。
+EurekaClientConfig，重在 Eureka-Client，例如， 连接的 Eureka-Server 的地址、获取服务提供者列表的频率、注册自身为服务提供者的频率等等。
+
