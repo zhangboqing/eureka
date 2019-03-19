@@ -17,14 +17,13 @@
 package com.netflix.eureka.registry;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.resources.ASGResource;
 
-import java.util.List;
-
 /**
  * @author Tomasz Bak
+ *
+ * 应用对象注册表接口，提供 Eureka-Server 集群内注册信息的同步服务
  */
 public interface PeerAwareInstanceRegistry extends InstanceRegistry {
 

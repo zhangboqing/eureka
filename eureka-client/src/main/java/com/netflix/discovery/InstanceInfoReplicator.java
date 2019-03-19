@@ -20,22 +20,41 @@ import java.util.concurrent.atomic.AtomicReference;
  * - update tasks can be scheduled on-demand via onDemandUpdate()
  * - task processing is rate limited by burstSize
  * - a new update task is always scheduled automatically after an earlier update task. However if an on-demand task
- *   is started, the scheduled automatic update task is discarded (and a new one will be scheduled after the new
- *   on-demand update).
+ * is started, the scheduled automatic update task is discarded (and a new one will be scheduled after the new
+ * on-demand update).
  *
- *   @author dliu
+ * @author dliu
  */
 class InstanceInfoReplicator implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(InstanceInfoReplicator.class);
 
     private final DiscoveryClient discoveryClient;
+    /**
+     * 应用实例信息
+     */
     private final InstanceInfo instanceInfo;
 
+    /**
+     * 定时执行频率，单位：秒
+     */
     private final int replicationIntervalSeconds;
+    /**
+     * 定时执行器
+     */
     private final ScheduledExecutorService scheduler;
+    /**
+     * 定时执行任务的 Future
+     */
     private final AtomicReference<Future> scheduledPeriodicRef;
 
+    /**
+     * 是否开启调度
+     */
     private final AtomicBoolean started;
+
+    /**
+     * 限流相关
+     */
     private final RateLimiter rateLimiter;
     private final int burstSize;
     private final int allowedRatePerMinute;
@@ -62,7 +81,9 @@ class InstanceInfoReplicator implements Runnable {
 
     public void start(int initialDelayMs) {
         if (started.compareAndSet(false, true)) {
+            // 设置 应用实例信息 数据不一致
             instanceInfo.setIsDirty();  // for initial register
+            // 提交任务，并设置该任务的 Future
             Future next = scheduler.schedule(this, initialDelayMs, TimeUnit.SECONDS);
             scheduledPeriodicRef.set(next);
         }
@@ -91,13 +112,15 @@ class InstanceInfoReplicator implements Runnable {
                     @Override
                     public void run() {
                         logger.debug("Executing on-demand update of local InstanceInfo");
-    
+
+                        // 取消任务
                         Future latestPeriodic = scheduledPeriodicRef.get();
                         if (latestPeriodic != null && !latestPeriodic.isDone()) {
                             logger.debug("Canceling the latest scheduled update, it will be rescheduled at the end of on demand update");
                             latestPeriodic.cancel(false);
                         }
-    
+
+                        // 再次调用
                         InstanceInfoReplicator.this.run();
                     }
                 });
@@ -114,16 +137,22 @@ class InstanceInfoReplicator implements Runnable {
 
     public void run() {
         try {
+            // 刷新 应用实例信息
             discoveryClient.refreshInstanceInfo();
 
+            // 判断 应用实例信息 是否数据不一致
             Long dirtyTimestamp = instanceInfo.isDirtyWithTime();
             if (dirtyTimestamp != null) {
+                // 发起注册
                 discoveryClient.register();
+
+                // 设置 应用实例信息 数据一致
                 instanceInfo.unsetIsDirty(dirtyTimestamp);
             }
         } catch (Throwable t) {
             logger.warn("There was a problem with the instance info replicator", t);
         } finally {
+            // 提交任务，并设置该任务的 Future
             Future next = scheduler.schedule(this, replicationIntervalSeconds, TimeUnit.SECONDS);
             scheduledPeriodicRef.set(next);
         }
