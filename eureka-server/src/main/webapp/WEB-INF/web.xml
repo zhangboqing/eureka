@@ -8,24 +8,32 @@
     <listener-class>com.netflix.eureka.EurekaBootStrap</listener-class>
   </listener>
 
+  <!-- Eureka-Server 状态过滤器。当 Eureka-Server 未处于开启( InstanceStatus.UP )状态，返回 HTTP 状态码 307 重定向 -->
   <filter>
     <filter-name>statusFilter</filter-name>
     <filter-class>com.netflix.eureka.StatusFilter</filter-class>
   </filter>
 
+  <!-- Eureka-Server 请求认证过滤器。Eureka-Server 未实现认证。目前打印访问的客户端名和版本号，配合 Netflix Servo 实现监控信息采集 -->
   <filter>
     <filter-name>requestAuthFilter</filter-name>
     <filter-class>com.netflix.eureka.ServerRequestAuthFilter</filter-class>
   </filter>
+
+  <!-- 请求限流过滤器 -->
   <filter>
     <filter-name>rateLimitingFilter</filter-name>
     <filter-class>com.netflix.eureka.RateLimitingFilter</filter-class>
   </filter>
+
+  <!-- GZIP 编码过滤器 -->
   <filter>
     <filter-name>gzipEncodingEnforcingFilter</filter-name>
     <filter-class>com.netflix.eureka.GzipEncodingEnforcingFilter</filter-class>
   </filter>
 
+  <!-- Jersey MVC 请求过滤器 -->
+  <!-- 在 com.netflix.eureka.resources 包里，有所有的 Eureka-Server Jersey Resource ( Controller ) -->
   <filter>
     <filter-name>jersey</filter-name>
     <filter-class>com.sun.jersey.spi.container.servlet.ServletContainer</filter-class>
